@@ -179,35 +179,33 @@
             box-shadow: 0 0 10px rgba(100, 100, 100, 0.3);
         }
 
-        /* Estilos dos botões de ação final */
+        /* Estilos dos botões de ação final - Agora flexíveis e limpos */
         .botoes-acao {
             display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
             gap: 10px;
             margin-top: 20px;
         }
 
-        @media (min-width: 600px) {
-            .botoes-acao {
-                flex-direction: row;
-            }
-        }
-        
         button.btn-acao {
             margin: 0;
-            padding: 15px;
-            font-size: 15px;
-            flex: 1;
+            padding: 15px 10px;
+            font-size: 14px;
+            flex: 1 1 calc(50% - 10px);
+            min-width: 140px;
         }
 
-        button.btn-imprimir { background-color: var(--preto-fundo); border: 1px solid var(--cor-acento-tech); }
-        button.btn-imprimir:hover { background-color: #333; }
+        button.btn-whatsapp { background-color: #25D366; color: white; }
+        button.btn-whatsapp:hover { background-color: #20b858; }
         
-        button.btn-telegram { background-color: #0088cc; }
+        button.btn-telegram { background-color: #0088cc; color: white; }
         button.btn-telegram:hover { background-color: #0099e6; }
         
         button.btn-editar { background-color: #ff9800; color: #fff;}
         button.btn-editar:hover { background-color: #e68a00; }
+        
+        button.btn-imprimir { background-color: var(--preto-fundo); border: 1px solid var(--cor-acento-tech); }
+        button.btn-imprimir:hover { background-color: #333; }
 
         #resultado {
             display: none;
@@ -233,7 +231,8 @@
             letter-spacing: 0.5px;
         }
         
-        ul { padding-left: 20px; transition: 0.3s; }
+        /* Modificado para suportar os novos marcadores dinâmicos (Emojis no lugar das bolinhas) */
+        ul { padding-left: 10px; list-style-type: none; transition: 0.3s; }
         li {
             margin-bottom: 10px;
             font-size: 14px;
@@ -469,7 +468,7 @@
         divPcs.style.display = (plat === 'pcs' || plat === 'ambos') ? 'block' : 'none';
     }
 
-    // NOVA FUNÇÃO: Toggle de Edição
+    // Toggle de Edição
     function toggleEdicao() {
         let btn = document.getElementById('btn_editar_laudo');
         let listas = document.querySelectorAll('#resultado ul');
@@ -481,7 +480,7 @@
         listas.forEach(ul => {
             ul.contentEditable = !isEditable;
             ul.style.backgroundColor = !isEditable ? '#fffde7' : 'transparent';
-            ul.style.padding = !isEditable ? '15px 15px 15px 35px' : '0 0 0 20px';
+            ul.style.padding = !isEditable ? '15px' : '0 0 0 10px';
             ul.style.borderRadius = '5px';
             ul.style.border = !isEditable ? '2px dashed #ff9800' : 'none';
         });
@@ -495,8 +494,11 @@
         }
     }
 
-    // NOVA FUNÇÃO: Copiar para Telegram
-    function copiarParaTelegram() {
+    // NOVA FUNÇÃO: Copiador Multiplataforma (WhatsApp e Telegram)
+    function copiarTexto(app) {
+        // Define o caractere de negrito dependendo do aplicativo
+        let b = (app === 'telegram') ? '**' : '*';
+        
         let tec = document.getElementById('nome_tecnico').value || 'Não preenchido';
         let evt = document.getElementById('nome_evento').value || 'Não preenchido';
         let cidade = document.getElementById('cidade').value || 'Não preenchida';
@@ -506,25 +508,33 @@
         let dEvt = formatarData(document.getElementById('data_evento').value);
         let tipo = document.getElementById('tipo_evento').value;
 
-        // Construção do Texto formatado para o Telegram
-        let texto = `📋 *LAUDO TÉCNICO - ORA EMPRESAS*\n\n`;
-        texto += `🏢 *Cliente/Evento:* ${evt}\n`;
-        texto += `🏙 *Cidade:* ${cidade}\n`;
-        texto += `📍 *Local:* ${locUrl}\n`;
-        texto += `👷‍♂️ *Técnico:* ${tec}\n`;
-        texto += `🗓 *Data Vistoria:* ${dVist} | *Evento:* ${dEvt}\n`;
-        texto += `🎯 *Perfil:* ${tipo}\n\n`;
+        // Cabeçalho Limpo - Emojis fora do Markdown
+        let texto = `📋 ${b}LAUDO TÉCNICO - ORA EMPRESAS${b}\n\n`;
+        texto += `🏢 ${b}Cliente/Evento:${b} ${evt}\n`;
+        texto += `🏙 ${b}Cidade:${b} ${cidade}\n`;
+        texto += `📍 ${b}Local:${b} ${locUrl}\n`;
+        texto += `👷‍♂️ ${b}Técnico:${b} ${tec}\n`;
+        texto += `🗓 ${b}Vistoria:${b} ${dVist} | ${b}Evento:${b} ${dEvt}\n`;
+        texto += `🎯 ${b}Perfil:${b} ${tipo}\n\n`;
 
-        // Pega as listas diretamente do DOM para capturar as edições manuais
+        // Captura e formata as listas renderizadas
         let blocos = document.querySelectorAll('.secao-res');
         
         blocos.forEach(bloco => {
             let titulo = bloco.querySelector('h3');
             if(titulo) {
-                texto += `*${titulo.innerText}*\n`;
+                // Separa o emoji do texto para que o markdown funcione
+                let tText = titulo.innerText.trim();
+                let parts = tText.split(' ');
+                let emoji = parts.shift(); 
+                let restOfTitle = parts.join(' ');
+                
+                texto += `${emoji} ${b}${restOfTitle}${b}\n`;
+
                 let itens = bloco.querySelectorAll('li');
                 itens.forEach(li => {
-                    texto += `• ${li.innerText}\n`;
+                    let liText = li.innerText.trim();
+                    texto += `${liText}\n`;
                 });
                 texto += `\n`;
             }
@@ -532,18 +542,23 @@
 
         let critico = document.querySelector('.critico');
         if (critico) {
-            texto += `🚨 *${critico.innerText}*\n\n`;
+            let cText = critico.innerText.replace('⚠️ ', '').replace('⚠️', '').trim();
+            texto += `🚨 ${b}${cText}${b}\n\n`;
         }
 
-        // Executa a cópia
-        navigator.clipboard.writeText(texto).then(() => {
-            let btn = document.getElementById('btn_telegram');
+        // Envia para a área de transferência
+        navigator.clipboard.writeText(texto.trim()).then(() => {
+            let btnId = (app === 'telegram') ? 'btn_telegram' : 'btn_whatsapp';
+            let btn = document.getElementById(btnId);
             let txtOriginal = btn.innerHTML;
-            btn.innerHTML = "✅ Copiado com sucesso!";
-            btn.style.backgroundColor = "#28a745";
+            let corOriginal = btn.style.backgroundColor;
+            
+            btn.innerHTML = "✅ Copiado!";
+            btn.style.backgroundColor = "#28a745"; // Cor de sucesso
+            
             setTimeout(() => {
                 btn.innerHTML = txtOriginal;
-                btn.style.backgroundColor = "#0088cc";
+                btn.style.backgroundColor = corOriginal;
             }, 3000);
         }).catch(err => {
             alert('Erro ao copiar para a área de transferência: ' + err);
@@ -699,7 +714,7 @@
             ${((tipo === "Grande Porte/Massa" || total > 400 || aps_qtd >= 10) ? '<div class="critico" style="margin-top: 20px;">⚠️ PROJETO ALTA DENSIDADE / EXIGE SITE SURVEY DO ENGENHEIRO</div>' : '')}
             
             <div class="secao-res" style="margin-top: 20px;"><h3>📦 Lista de Hardware Exigida</h3><ul>
-            ${eq.map(i => `<li><b>${i.substring(0, i.indexOf(' ') > 0 ? i.indexOf(' ') : i.length)}</b> ${i.substring(i.indexOf(' ') + 1)}</li>`).join('')}
+            ${eq.map(i => `<li>🔹 <b>${i.substring(0, i.indexOf(' ') > 0 ? i.indexOf(' ') : i.length)}</b> ${i.substring(i.indexOf(' ') + 1)}</li>`).join('')}
             </ul></div>
             
             ${alertas.length ? `<div class="secao-res"><h3>🚨 Alertas Críticos de Engenharia</h3><ul>
@@ -707,12 +722,13 @@
             </ul></div>` : ''}
             
             ${dicas.length ? `<div class="secao-res"><h3>💡 Recomendações de Configuração</h3><ul>
-            ${dicas.map(i => `<li class="dica-item">✔ ${i}</li>`).join('')}
+            ${dicas.map(i => `<li class="dica-item">✅ ${i}</li>`).join('')}
             </ul></div>` : ''}
 
             <div class="botoes-acao">
                 <button class="btn-acao btn-editar" id="btn_editar_laudo" onclick="toggleEdicao()">✏️ Editar Textos</button>
-                <button class="btn-acao btn-telegram" id="btn_telegram" onclick="copiarParaTelegram()">✈️ Copiar p/ Telegram</button>
+                <button class="btn-acao btn-whatsapp" id="btn_whatsapp" onclick="copiarTexto('whatsapp')">💬 Copiar p/ WhatsApp</button>
+                <button class="btn-acao btn-telegram" id="btn_telegram" onclick="copiarTexto('telegram')">✈️ Copiar p/ Telegram</button>
                 <button class="btn-acao btn-imprimir" onclick="window.print()">🖨️ Imprimir PDF</button>
             </div>
         `;
