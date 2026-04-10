@@ -7,7 +7,7 @@
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#0056b3">
     <style>
-        /* TEMA ORA EMPRESAS - VERSÃO TECH: LATERAIS PRETAS, MIOLO BRANCO, DETALHES AZUL ELÉTRICO */
+        /* TEMA ORA EMPRESAS - VERSÃO TECH */
         :root {
             --cor-acento-tech: #0056b3; 
             --cor-brilho-tech: rgba(0, 123, 255, 0.5); 
@@ -178,18 +178,36 @@
             background-color: #666;
             box-shadow: 0 0 10px rgba(100, 100, 100, 0.3);
         }
-        
-        button.btn-imprimir {
-            background-color: var(--preto-fundo);
+
+        /* Estilos dos botões de ação final */
+        .botoes-acao {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
             margin-top: 20px;
-            margin-bottom: 0;
-            border: 1px solid var(--cor-acento-tech);
         }
 
-        button.btn-imprimir:hover {
-            background-color: #333;
-            border-color: #007bff;
+        @media (min-width: 600px) {
+            .botoes-acao {
+                flex-direction: row;
+            }
         }
+        
+        button.btn-acao {
+            margin: 0;
+            padding: 15px;
+            font-size: 15px;
+            flex: 1;
+        }
+
+        button.btn-imprimir { background-color: var(--preto-fundo); border: 1px solid var(--cor-acento-tech); }
+        button.btn-imprimir:hover { background-color: #333; }
+        
+        button.btn-telegram { background-color: #0088cc; }
+        button.btn-telegram:hover { background-color: #0099e6; }
+        
+        button.btn-editar { background-color: #ff9800; color: #fff;}
+        button.btn-editar:hover { background-color: #e68a00; }
 
         #resultado {
             display: none;
@@ -215,23 +233,17 @@
             letter-spacing: 0.5px;
         }
         
-        ul { padding-left: 20px; }
+        ul { padding-left: 20px; transition: 0.3s; }
         li {
             margin-bottom: 10px;
             font-size: 14px;
             line-height: 1.5;
             color: #333;
+            outline: none;
         }
 
-        .alerta-item {
-            color: #007bff;
-            font-weight: bold;
-        }
-
-        .dica-item {
-            color: #1a1a1a;
-            font-weight: bold;
-        }
+        .alerta-item { color: #007bff; font-weight: bold; }
+        .dica-item { color: #1a1a1a; font-weight: bold; }
 
         .critico {
             background: var(--cor-acento-tech);
@@ -443,13 +455,11 @@
 
     function verificarTipoEvento() {
         let tipo = document.getElementById('tipo_evento').value;
-        
         let divGamer = document.getElementById('div_gamer_opcoes');
         let divStands = document.getElementById('div_stands_opcoes');
         
         divGamer.style.display = (tipo === 'Gamer/E-sports') ? 'block' : 'none';
         divStands.style.display = (tipo === 'Feira de Negócios') ? 'block' : 'none';
-        
         verificarQtdPcs();
     }
 
@@ -457,6 +467,87 @@
         let plat = document.getElementById('plataforma_gamer').value;
         let divPcs = document.getElementById('div_qtd_pcs');
         divPcs.style.display = (plat === 'pcs' || plat === 'ambos') ? 'block' : 'none';
+    }
+
+    // NOVA FUNÇÃO: Toggle de Edição
+    function toggleEdicao() {
+        let btn = document.getElementById('btn_editar_laudo');
+        let listas = document.querySelectorAll('#resultado ul');
+        
+        if (listas.length === 0) return;
+        
+        let isEditable = listas[0].isContentEditable;
+
+        listas.forEach(ul => {
+            ul.contentEditable = !isEditable;
+            ul.style.backgroundColor = !isEditable ? '#fffde7' : 'transparent';
+            ul.style.padding = !isEditable ? '15px 15px 15px 35px' : '0 0 0 20px';
+            ul.style.borderRadius = '5px';
+            ul.style.border = !isEditable ? '2px dashed #ff9800' : 'none';
+        });
+
+        if (!isEditable) {
+            btn.innerHTML = "💾 Salvar Alterações";
+            btn.style.backgroundColor = "#28a745";
+        } else {
+            btn.innerHTML = "✏️ Editar Textos";
+            btn.style.backgroundColor = "#ff9800";
+        }
+    }
+
+    // NOVA FUNÇÃO: Copiar para Telegram
+    function copiarParaTelegram() {
+        let tec = document.getElementById('nome_tecnico').value || 'Não preenchido';
+        let evt = document.getElementById('nome_evento').value || 'Não preenchido';
+        let cidade = document.getElementById('cidade').value || 'Não preenchida';
+        let locUrl = document.getElementById('link_maps').value || 'Sem link informado';
+        
+        let dVist = formatarData(document.getElementById('data_vistoria').value);
+        let dEvt = formatarData(document.getElementById('data_evento').value);
+        let tipo = document.getElementById('tipo_evento').value;
+
+        // Construção do Texto formatado para o Telegram
+        let texto = `📋 *LAUDO TÉCNICO - ORA EMPRESAS*\n\n`;
+        texto += `🏢 *Cliente/Evento:* ${evt}\n`;
+        texto += `🏙 *Cidade:* ${cidade}\n`;
+        texto += `📍 *Local:* ${locUrl}\n`;
+        texto += `👷‍♂️ *Técnico:* ${tec}\n`;
+        texto += `🗓 *Data Vistoria:* ${dVist} | *Evento:* ${dEvt}\n`;
+        texto += `🎯 *Perfil:* ${tipo}\n\n`;
+
+        // Pega as listas diretamente do DOM para capturar as edições manuais
+        let blocos = document.querySelectorAll('.secao-res');
+        
+        blocos.forEach(bloco => {
+            let titulo = bloco.querySelector('h3');
+            if(titulo) {
+                texto += `*${titulo.innerText}*\n`;
+                let itens = bloco.querySelectorAll('li');
+                itens.forEach(li => {
+                    texto += `• ${li.innerText}\n`;
+                });
+                texto += `\n`;
+            }
+        });
+
+        let critico = document.querySelector('.critico');
+        if (critico) {
+            texto += `🚨 *${critico.innerText}*\n\n`;
+        }
+
+        // Executa a cópia
+        navigator.clipboard.writeText(texto).then(() => {
+            let btn = document.getElementById('btn_telegram');
+            let txtOriginal = btn.innerHTML;
+            btn.innerHTML = "✅ Copiado com sucesso!";
+            btn.style.backgroundColor = "#28a745";
+            setTimeout(() => {
+                btn.innerHTML = txtOriginal;
+                btn.style.backgroundColor = "#0088cc";
+            }, 3000);
+        }).catch(err => {
+            alert('Erro ao copiar para a área de transferência: ' + err);
+        });
     }
 
     async function gerarProjeto() {
@@ -515,27 +606,21 @@
             let cap = area_aberta ? 100 : 80; 
             if (metal) cap = cap * 0.8; 
             
-            // Cálculo base por densidade de pessoas
             aps_qtd = Math.max(1, Math.ceil(total / cap));
             
-            // MÉTRICA ATUALIZADA: O FOCO SÃO OS STANDS
             if (tipo === 'Feira de Negócios' && qtd_stands > 0) {
-                // A regra de stands substitui o cálculo por densidade de pessoas
                 aps_qtd = Math.max(1, Math.ceil(qtd_stands / 8)); 
             }
 
-            // MÉTRICA: Muitas salas exige no mínimo 6 APs
             if (divisorias === "salas" && aps_qtd < 6) aps_qtd = 6;
-            
             if (tipo === "Grande Porte/Massa" && aps_qtd < 3) aps_qtd = 3;
-            
             if (gamer && plat_gamer === 'pcs' && total <= maq) aps_qtd = 0;
 
             if (aps_qtd > 0) {
                 let modelo_ap = "";
                 if (ambiente === 'externo') modelo_ap = "Grandstream GWN7660LR / GWN7664LR (Outdoor)";
                 else if (ambiente === 'interno') modelo_ap = "Grandstream GWN7660 / GWN7664 (Indoor)";
-                else modelo_ap = "Mix de APs Grandstream (Outdoor e Indoor) - Verificar área";
+                else modelo_ap = "Mix de APs Grandstream (Outdoor e Indoor)";
                 
                 eq.push(`${aps_qtd}x Access Points ${modelo_ap}`);
                 
@@ -545,10 +630,10 @@
                 else if (aps_qtd <= 15) eq.push("01x Switch PoE 16 Portas (Para os APs Grandstream)");
                 else eq.push("01x Switch PoE 24 Portas (Para os APs Grandstream)");
 
-                alertas.push("REGRA DE OURO: O Wi-Fi nativo da ONU **DEVE ESTAR DESABILITADO**. Toda a rede sem fio será emitida exclusivamente pelos APs Grandstream.");
+                alertas.push("REGRA DE OURO: O Wi-Fi nativo da ONU DEVE ESTAR DESABILITADO. Toda a rede sem fio será emitida pelos APs Grandstream.");
 
                 if (aps_qtd > 2) {
-                    alertas.push("MAPA DE CALOR NECESSÁRIO: Eventos ou ambientes que exigem mais de 2 APs necessitam da elaboração de um mapa de calor (Heatmap) e análise profunda de canais para garantir Roaming eficiente e evitar interferência co-canal.");
+                    alertas.push("MAPA DE CALOR NECESSÁRIO: Eventos que exigem mais de 2 APs necessitam da elaboração de um mapa de calor e análise de canais para garantir Roaming.");
                 }
             }
         }
@@ -587,9 +672,8 @@
         if (sinal_rede_movel && aps_qtd > 0) dicas.push("A rede móvel ruim sobrecarregará o Wi-Fi. Crie regras no Queue limitando a banda (Ex: 5 Mega/usuário).");
         
         if (hotspot && maq > 0) dicas.push("Crie uma rede (SSID) separada e SEM hotspot, dedicada exclusivamente para as maquininhas de cartão.");
-        
         if (tipo === "Feira de Negócios") dicas.push("Poluição de RF alta. Fixe os canais dos APs Grandstream apenas em 5GHz e evite canalização automática.");
-        if (gamer && qtd_pcs > 0) dicas.push("Crie uma VLAN exclusiva para a porta do Switch Gamer, separando totalmente o tráfego dos PCs do Wi-Fi do público (QoS ativo).");
+        if (gamer && qtd_pcs > 0) dicas.push("Crie uma VLAN exclusiva para a porta do Switch Gamer, separando totalmente o tráfego dos PCs do Wi-Fi do público.");
 
         let txt_ambiente = ambiente === 'externo' ? 'Área Externa (Outdoor)' : (ambiente === 'interno' ? 'Área Interna (Indoor)' : 'Misto (Indoor + Outdoor)');
         let txt_divisorias = divisorias === 'salas' ? 'Com Divisórias/Salas' : 'Vão Livre';
@@ -606,7 +690,7 @@
                 <p style="margin: 0 0 8px 0;"><b>Data da Vistoria:</b> ${dVist}   |   <b>Data do Evento:</b> ${dEvt}</p>
                 <hr style="border: 0; border-top: 1px dashed #ccc; margin: 12px 0;">
                 <p style="margin: 0 0 8px 0;"><b>Tipo de Evento:</b> ${tipo}${inf_stands}</p>
-                <p style="margin: 0 0 8px 0;"><b>Conexões Estimadas:</b> ${total} dispositivos (Público + Staff + POS)</p>
+                <p style="margin: 0 0 8px 0;"><b>Conexões Estimadas:</b> ${total} dispositivos</p>
                 <p style="margin: 0;"><b>Ambiente Físico:</b> ${txt_ambiente} - ${txt_divisorias}</p>
             </div>
 
@@ -626,7 +710,11 @@
             ${dicas.map(i => `<li class="dica-item">✔ ${i}</li>`).join('')}
             </ul></div>` : ''}
 
-            <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+            <div class="botoes-acao">
+                <button class="btn-acao btn-editar" id="btn_editar_laudo" onclick="toggleEdicao()">✏️ Editar Textos</button>
+                <button class="btn-acao btn-telegram" id="btn_telegram" onclick="copiarParaTelegram()">✈️ Copiar p/ Telegram</button>
+                <button class="btn-acao btn-imprimir" onclick="window.print()">🖨️ Imprimir PDF</button>
+            </div>
         `;
             
         resDiv.style.display = 'block';
