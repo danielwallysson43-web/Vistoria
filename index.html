@@ -179,7 +179,7 @@
             box-shadow: 0 0 10px rgba(100, 100, 100, 0.3);
         }
 
-        /* Estilos dos botões de ação final - Agora flexíveis e limpos */
+        /* Estilos dos botões de ação final */
         .botoes-acao {
             display: flex;
             flex-wrap: wrap;
@@ -229,9 +229,10 @@
             padding-bottom: 5px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
         }
         
-        /* Modificado para suportar os novos marcadores dinâmicos (Emojis no lugar das bolinhas) */
         ul { padding-left: 10px; list-style-type: none; transition: 0.3s; }
         li {
             margin-bottom: 10px;
@@ -239,6 +240,35 @@
             line-height: 1.5;
             color: #333;
             outline: none;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        /* NOVA LÓGICA DE EXCLUSÃO (BOTÃO ✖) */
+        .remover-item {
+            color: #dc3545;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 8px;
+            display: none;
+            user-select: none;
+            font-family: sans-serif;
+            font-size: 14px;
+            flex-shrink: 0;
+            padding: 2px 5px;
+            background: #ffe6e6;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+        
+        .remover-item:hover {
+            background: #ffcccc;
+            transform: scale(1.1);
+        }
+
+        /* Só mostra o ✖ quando o modo-edicao estiver ativo */
+        .modo-edicao .remover-item {
+            display: inline-block;
         }
 
         .alerta-item { color: #007bff; font-weight: bold; }
@@ -282,6 +312,7 @@
             .secao-res, .critico, .img-anexo { page-break-inside: avoid; border: none; }
             h2, h3 { page-break-after: avoid; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .remover-item { display: none !important; }
         }
     </style>
 </head>
@@ -468,35 +499,43 @@
         divPcs.style.display = (plat === 'pcs' || plat === 'ambos') ? 'block' : 'none';
     }
 
-    // Toggle de Edição
+    // Toggle de Edição com as Lixeiras (✖)
     function toggleEdicao() {
         let btn = document.getElementById('btn_editar_laudo');
+        let resDiv = document.getElementById('resultado');
         let listas = document.querySelectorAll('#resultado ul');
         
         if (listas.length === 0) return;
         
-        let isEditable = listas[0].isContentEditable;
+        // Ativa ou desativa a classe que mostra os botões "✖"
+        resDiv.classList.toggle('modo-edicao');
+        let isEditable = resDiv.classList.contains('modo-edicao');
 
         listas.forEach(ul => {
-            ul.contentEditable = !isEditable;
-            ul.style.backgroundColor = !isEditable ? '#fffde7' : 'transparent';
-            ul.style.padding = !isEditable ? '15px' : '0 0 0 10px';
+            ul.contentEditable = isEditable;
+            ul.style.backgroundColor = isEditable ? '#fffde7' : 'transparent';
+            ul.style.padding = isEditable ? '15px' : '0 0 0 10px';
             ul.style.borderRadius = '5px';
-            ul.style.border = !isEditable ? '2px dashed #ff9800' : 'none';
+            ul.style.border = isEditable ? '2px dashed #ff9800' : 'none';
         });
 
-        if (!isEditable) {
+        if (isEditable) {
             btn.innerHTML = "💾 Salvar Alterações";
             btn.style.backgroundColor = "#28a745";
         } else {
             btn.innerHTML = "✏️ Editar Textos";
             btn.style.backgroundColor = "#ff9800";
+            
+            // Limpa as linhas que o usuário apagou no texto mas deixou o "li" vazio
+            let allLis = resDiv.querySelectorAll('li');
+            allLis.forEach(li => {
+                let textOnly = li.innerText.replace('✖', '').replace('🔹', '').replace('⚠️', '').replace('✅', '').trim();
+                if(textOnly === '') li.remove();
+            });
         }
     }
 
-    // NOVA FUNÇÃO: Copiador Multiplataforma (WhatsApp e Telegram)
     function copiarTexto(app) {
-        // Define o caractere de negrito dependendo do aplicativo
         let b = (app === 'telegram') ? '**' : '*';
         
         let tec = document.getElementById('nome_tecnico').value || 'Não preenchido';
@@ -508,7 +547,6 @@
         let dEvt = formatarData(document.getElementById('data_evento').value);
         let tipo = document.getElementById('tipo_evento').value;
 
-        // Cabeçalho Limpo - Emojis fora do Markdown
         let texto = `📋 ${b}LAUDO TÉCNICO - ORA EMPRESAS${b}\n\n`;
         texto += `🏢 ${b}Cliente/Evento:${b} ${evt}\n`;
         texto += `🏙 ${b}Cidade:${b} ${cidade}\n`;
@@ -517,14 +555,13 @@
         texto += `🗓 ${b}Vistoria:${b} ${dVist} | ${b}Evento:${b} ${dEvt}\n`;
         texto += `🎯 ${b}Perfil:${b} ${tipo}\n\n`;
 
-        // Captura e formata as listas renderizadas
         let blocos = document.querySelectorAll('.secao-res');
         
         blocos.forEach(bloco => {
             let titulo = bloco.querySelector('h3');
             if(titulo) {
-                // Separa o emoji do texto para que o markdown funcione
-                let tText = titulo.innerText.trim();
+                // Remove o "✖" caso exista e processa os Emojis
+                let tText = titulo.innerText.replace('✖', '').trim();
                 let parts = tText.split(' ');
                 let emoji = parts.shift(); 
                 let restOfTitle = parts.join(' ');
@@ -533,7 +570,8 @@
 
                 let itens = bloco.querySelectorAll('li');
                 itens.forEach(li => {
-                    let liText = li.innerText.trim();
+                    // Ignora o ✖ na hora de copiar
+                    let liText = li.innerText.replace('✖', '').trim();
                     texto += `${liText}\n`;
                 });
                 texto += `\n`;
@@ -546,7 +584,6 @@
             texto += `🚨 ${b}${cText}${b}\n\n`;
         }
 
-        // Envia para a área de transferência
         navigator.clipboard.writeText(texto.trim()).then(() => {
             let btnId = (app === 'telegram') ? 'btn_telegram' : 'btn_whatsapp';
             let btn = document.getElementById(btnId);
@@ -554,7 +591,7 @@
             let corOriginal = btn.style.backgroundColor;
             
             btn.innerHTML = "✅ Copiado!";
-            btn.style.backgroundColor = "#28a745"; // Cor de sucesso
+            btn.style.backgroundColor = "#28a745"; 
             
             setTimeout(() => {
                 btn.innerHTML = txtOriginal;
@@ -611,7 +648,7 @@
 
         let precisa_rb = (total > 30 || hotspot || gamer || tipo === "Transmissão Crítica" || tipo === "Grande Porte/Massa" || qtd_stands > 0);
         if (!precisa_rb) {
-            eq.push(divisorias === "salas" ? "01x ONU Wi-Fi AX (Roteando) + 01x Roteador Adicional" : "01x ONU Wi-Fi AX (Roteando) ou Roteador Giga");
+            eq.push("01x ONU Wi-Fi AX (Roteando) ou Roteador Giga");
         } else {
             if (total <= 50 && qtd_stands <= 20) eq.push("01x ONU em Bridge + 01x Mikrotik (RB 750Gr3)");
             else if (total < 150 && qtd_stands <= 50) eq.push("01x ONU em Bridge + 01x Mikrotik (RB 750Gr3 ou 760iGS)");
@@ -668,6 +705,11 @@
             }
         }
         
+        // ADD RÉGUA DE TOMADAS PDU
+        if (total > 0 || aps_qtd > 0) {
+            eq.push("01x Régua de Tomadas Padrão Rack (Filtro de linha / PDU)");
+        }
+
         if (longa_distancia) {
             eq.push("01x Par de Conversores de Mídia (A e B) + Bobina Cabo Drop Óptico");
             alertas.push("O limite de rede metálica é 100m. Utilize conversores e fibra óptica para equipamentos distantes.");
@@ -713,20 +755,29 @@
 
             ${((tipo === "Grande Porte/Massa" || total > 400 || aps_qtd >= 10) ? '<div class="critico" style="margin-top: 20px;">⚠️ PROJETO ALTA DENSIDADE / EXIGE SITE SURVEY DO ENGENHEIRO</div>' : '')}
             
-            <div class="secao-res" style="margin-top: 20px;"><h3>📦 Lista de Hardware Exigida</h3><ul>
-            ${eq.map(i => `<li>🔹 <b>${i.substring(0, i.indexOf(' ') > 0 ? i.indexOf(' ') : i.length)}</b> ${i.substring(i.indexOf(' ') + 1)}</li>`).join('')}
-            </ul></div>
+            <div class="secao-res" style="margin-top: 20px;">
+                <h3><span class="remover-item" onclick="this.parentElement.parentElement.remove()" title="Remover Seção">✖</span>📦 Lista de Hardware Exigida</h3>
+                <ul>
+                ${eq.map(i => `<li><span class="remover-item" onclick="this.parentElement.remove()" title="Remover Item">✖</span><div>🔹 <b>${i.substring(0, i.indexOf(' ') > 0 ? i.indexOf(' ') : i.length)}</b> ${i.substring(i.indexOf(' ') + 1)}</div></li>`).join('')}
+                </ul>
+            </div>
             
-            ${alertas.length ? `<div class="secao-res"><h3>🚨 Alertas Críticos de Engenharia</h3><ul>
-            ${alertas.map(i => `<li class="alerta-item">⚠️ ${i}</li>`).join('')}
-            </ul></div>` : ''}
+            ${alertas.length ? `<div class="secao-res">
+                <h3><span class="remover-item" onclick="this.parentElement.parentElement.remove()" title="Remover Seção">✖</span>🚨 Alertas Críticos de Engenharia</h3>
+                <ul>
+                ${alertas.map(i => `<li class="alerta-item"><span class="remover-item" onclick="this.parentElement.remove()" title="Remover Item">✖</span><div>⚠️ ${i}</div></li>`).join('')}
+                </ul>
+            </div>` : ''}
             
-            ${dicas.length ? `<div class="secao-res"><h3>💡 Recomendações de Configuração</h3><ul>
-            ${dicas.map(i => `<li class="dica-item">✅ ${i}</li>`).join('')}
-            </ul></div>` : ''}
+            ${dicas.length ? `<div class="secao-res">
+                <h3><span class="remover-item" onclick="this.parentElement.parentElement.remove()" title="Remover Seção">✖</span>💡 Recomendações de Configuração</h3>
+                <ul>
+                ${dicas.map(i => `<li class="dica-item"><span class="remover-item" onclick="this.parentElement.remove()" title="Remover Item">✖</span><div>✅ ${i}</div></li>`).join('')}
+                </ul>
+            </div>` : ''}
 
             <div class="botoes-acao">
-                <button class="btn-acao btn-editar" id="btn_editar_laudo" onclick="toggleEdicao()">✏️ Editar Textos</button>
+                <button class="btn-acao btn-editar" id="btn_editar_laudo" onclick="toggleEdicao()">✏️ Editar / Apagar</button>
                 <button class="btn-acao btn-whatsapp" id="btn_whatsapp" onclick="copiarTexto('whatsapp')">💬 Copiar p/ WhatsApp</button>
                 <button class="btn-acao btn-telegram" id="btn_telegram" onclick="copiarTexto('telegram')">✈️ Copiar p/ Telegram</button>
                 <button class="btn-acao btn-imprimir" onclick="window.print()">🖨️ Imprimir PDF</button>
