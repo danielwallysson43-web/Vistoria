@@ -514,9 +514,12 @@
         let qtd_pcs = gamer && (plat_gamer === 'pcs' || plat_gamer === 'ambos') ? (parseInt(document.getElementById('qtd_pcs').value) || 0) : 0;
 
         let eq = []; let alertas = []; let dicas = [];
-        let eaps_qtd = 0;
+        let aps_qtd = 0;
 
-        // LÓGICA DE ROTEAMENTO (Mantenha as regras técnicas originais)
+        // Regra de Injeção Automática de Captura
+        dicas.push("KIT TÉCNICO OBRIGATÓRIO: O técnico deve levar uma RB ou uma ONU Huawei 8145 para realizar a captura de IPs e dados no local.");
+
+        // LÓGICA DE ROTEAMENTO
         let precisa_rb = (total > 30 || hotspot || gamer || tipo === "Transmissão Crítica" || tipo === "Grande Porte/Massa");
         if (!precisa_rb) {
             eq.push(divisorias === "salas" ? "01x ONU Wi-Fi AX (Roteando) + 01x Roteador Adicional" : "01x ONU Wi-Fi AX (Roteando) ou Roteador Giga");
@@ -529,26 +532,31 @@
             let cap = area_aberta ? 100 : 80; 
             if (metal) cap = cap * 0.8; 
             
-            eaps_qtd = Math.max(1, Math.ceil(total / cap));
-            if (tipo === "Grande Porte/Massa" && eaps_qtd < 3) eaps_qtd = 3;
-            if (divisorias === "salas" && eaps_qtd < 2) eaps_qtd = 2;
+            aps_qtd = Math.max(1, Math.ceil(total / cap));
+            if (tipo === "Grande Porte/Massa" && aps_qtd < 3) aps_qtd = 3;
+            if (divisorias === "salas" && aps_qtd < 2) aps_qtd = 2;
             
-            if (gamer && plat_gamer === 'pcs' && total <= maq) eaps_qtd = 0;
+            if (gamer && plat_gamer === 'pcs' && total <= maq) aps_qtd = 0;
 
-            if (eaps_qtd > 0) {
-                let modelo_eap = "";
-                if (ambiente === 'externo') modelo_eap = "EAP 610 Outdoor";
-                else if (ambiente === 'interno') modelo_eap = "EAP 620/650 Indoor";
-                else modelo_eap = "Mix de EAPs (Outdoor e Indoor) - Verificar área";
+            if (aps_qtd > 0) {
+                let modelo_ap = "";
+                if (ambiente === 'externo') modelo_ap = "Grandstream GWN7660LR / GWN7664LR (Outdoor)";
+                else if (ambiente === 'interno') modelo_ap = "Grandstream GWN7660 / GWN7664 (Indoor)";
+                else modelo_ap = "Mix de APs Grandstream (Outdoor e Indoor) - Verificar área";
                 
-                eq.push(`${eaps_qtd}x Access Points ${modelo_eap}`);
+                eq.push(`${aps_qtd}x Access Points ${modelo_ap}`);
                 
-                if (eaps_qtd === 1) eq.push("01x Fonte PoE Gigabit (Injetor)");
-                else if (eaps_qtd <= 4) eq.push("01x Switch PoE 5 Portas (Para os EAPs)");
-                else if (eaps_qtd <= 7) eq.push("01x Switch PoE 8 Portas (Para os EAPs)");
-                else eq.push("01x Switch PoE 16 Portas (Para os EAPs)");
+                if (aps_qtd === 1) eq.push("01x Fonte PoE Gigabit (Injetor)");
+                else if (aps_qtd <= 4) eq.push("01x Switch PoE 5 Portas (Para os APs Grandstream)");
+                else if (aps_qtd <= 7) eq.push("01x Switch PoE 8 Portas (Para os APs Grandstream)");
+                else eq.push("01x Switch PoE 16 Portas (Para os APs Grandstream)");
 
-                alertas.push("REGRA DE OURO: O Wi-Fi nativo da ONU **DEVE ESTAR DESABILITADO**. Toda a rede sem fio será emitida exclusivamente pelos EAPs.");
+                alertas.push("REGRA DE OURO: O Wi-Fi nativo da ONU **DEVE ESTAR DESABILITADO**. Toda a rede sem fio será emitida exclusivamente pelos APs Grandstream.");
+
+                // Novo Alerta: Mapa de Calor para Projetos com mais de 2 APs
+                if (aps_qtd > 2) {
+                    alertas.push("MAPA DE CALOR NECESSÁRIO: Eventos ou ambientes que exigem mais de 2 APs necessitam da elaboração de um mapa de calor (Heatmap) e análise profunda de canais para garantir Roaming eficiente e evitar interferência co-canal.");
+                }
             }
         }
 
@@ -561,7 +569,7 @@
         }
 
         // INFRAESTRUTURA E RACKS
-        if (eaps_qtd > 0 || qtd_pcs > 0) {
+        if (aps_qtd > 0 || qtd_pcs > 0) {
             if (ambiente === 'ambos') {
                 eq.push("01x Rack Indoor + 01x Caixa Hermética (Para a área externa)");
             } else {
@@ -583,15 +591,15 @@
 
         // AVISOS INTELIGENTES
         if (total > 250) alertas.push("ESTOURO DE DHCP: A quantidade de usuários excede uma rede /24. Na Mikrotik, altere o Pool e a máscara para /23 ou /22.");
-        if (metal && eaps_qtd > 0) alertas.push("OBSTRUÇÃO METÁLICA: O sinal sofre reflexão no metal. Evite instalar os APs muito colados às estruturas.");
-        if (!fixacao && eaps_qtd > 0) alertas.push("ABSORÇÃO DE SINAL: Sem fixação alta, utilize pedestais/tripés para os APs (Mínimo 2.5m).");
+        if (metal && aps_qtd > 0) alertas.push("OBSTRUÇÃO METÁLICA: O sinal sofre reflexão no metal. Evite instalar os APs muito colados às estruturas.");
+        if (!fixacao && aps_qtd > 0) alertas.push("ABSORÇÃO DE SINAL: Sem fixação alta, utilize pedestais/tripés para os APs (Mínimo 2.5m).");
         if (live) alertas.push("LIVE DETECTADA: É proibido rodar a Live via Wi-Fi. Puxe um cabo de rede direto para a máquina de transmissão.");
-        if (sinal_rede_movel && eaps_qtd > 0) dicas.push("A rede móvel ruim sobrecarregará o Wi-Fi. Crie regras no Queue limitando a banda (Ex: 5 Mega/usuário).");
+        if (sinal_rede_movel && aps_qtd > 0) dicas.push("A rede móvel ruim sobrecarregará o Wi-Fi. Crie regras no Queue limitando a banda (Ex: 5 Mega/usuário).");
         
         // CORREÇÃO: MAQUININHAS
         if (hotspot && maq > 0) dicas.push("Crie uma rede (SSID) separada e SEM hotspot, dedicada exclusivamente para as maquininhas de cartão.");
         
-        if (tipo === "Feira de Negócios") dicas.push("Poluição de RF alta. Fixe os canais dos EAPs apenas em 5GHz e evite canalização automática.");
+        if (tipo === "Feira de Negócios") dicas.push("Poluição de RF alta. Fixe os canais dos APs Grandstream apenas em 5GHz e evite canalização automática.");
         if (gamer && qtd_pcs > 0) dicas.push("Crie uma VLAN exclusiva para a porta do Switch Gamer, separando totalmente o tráfego dos PCs do Wi-Fi do público (QoS ativo).");
 
         // RENDERIZAÇÃO DO LAUDO
@@ -603,10 +611,10 @@
             <h2 style="color: var(--cor-acento-tech); font-size: 20px; text-transform: uppercase; margin-top: 0; border-bottom: 2px solid var(--cor-acento-tech); padding-bottom: 10px;">📋 Laudo Técnico de Vistoria</h2>
             
             <div class="secao-res" style="background: var(--cinza-fundo-card); border: 1px solid #eee; padding: 15px; border-radius: 6px; border-left: 5px solid var(--cor-acento-tech);">
-                <p style="margin: 0 0 8px 0;"><b>Cliente / Evento:</b> ${evt}   |   <b>Cidade:</b> ${cidade}</p>
+                <p style="margin: 0 0 8px 0;"><b>Cliente / Evento:</b> ${evt}   |   <b>Cidade:</b> ${cidade}</p>
                 <p style="margin: 0 0 8px 0;"><b>Localização GPS:</b> ${htmlLocal}</p>
                 <p style="margin: 0 0 8px 0;"><b>Técnico Responsável:</b> ${tec}</p>
-                <p style="margin: 0 0 8px 0;"><b>Data da Vistoria:</b> ${dVist}   |   <b>Data do Evento:</b> ${dEvt}</p>
+                <p style="margin: 0 0 8px 0;"><b>Data da Vistoria:</b> ${dVist}   |   <b>Data do Evento:</b> ${dEvt}</p>
                 <hr style="border: 0; border-top: 1px dashed #ccc; margin: 12px 0;">
                 <p style="margin: 0 0 8px 0;"><b>Tipo de Evento:</b> ${tipo}</p>
                 <p style="margin: 0 0 8px 0;"><b>Conexões Estimadas:</b> ${total} dispositivos (Público + Staff + POS)</p>
