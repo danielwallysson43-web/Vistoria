@@ -9,9 +9,8 @@
     <style>
         /* TEMA DANIEL TEC - VERSÃO TECH: LATERAIS PRETAS, MIOLO BRANCO, DETALHES AZUL ELÉTRICO */
         :root {
-            /* NOVA COR ACENTO: AZUL ELÉTRICO TECNOLÓGICO */
-            --cor-acento-tech: #0056b3; /* Um azul cobalto forte */
-            --cor-brilho-tech: rgba(0, 123, 255, 0.5); /* Azul mais claro para efeitos de brilho */
+            --cor-acento-tech: #0056b3; 
+            --cor-brilho-tech: rgba(0, 123, 255, 0.5); 
             --preto-fundo: #000000;
             --preto-texto: #1A1A1A;
             --branco: #FFFFFF;
@@ -33,9 +32,7 @@
             margin: 0 auto;
             padding: 25px;
             border-radius: 12px;
-            /* Sombra suave com toque azul para efeito de glow */
             box-shadow: 0 10px 30px rgba(0, 86, 179, 0.15);
-            /* Borda superior grossa em azul tecnológico */
             border-top: 8px solid var(--cor-acento-tech);
         }
         
@@ -52,7 +49,6 @@
         }
 
         h1 {
-            /* Título em azul para destaque */
             color: var(--cor-acento-tech);
             font-size: 22px;
             text-transform: uppercase;
@@ -62,19 +58,16 @@
             text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
         }
 
-        /* Estilização dos Cards internos */
         .card {
             background: var(--cinza-fundo-card);
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
             border: 1px solid var(--cinza-borda);
-            /* Borda esquerda agora é azul tecnológico */
             border-left: 5px solid var(--cor-acento-tech);
         }
 
         .card-title {
-            /* Título do card em azul */
             color: var(--cor-acento-tech);
             font-size: 16px;
             margin-top: 0;
@@ -109,7 +102,6 @@
             background: var(--branco);
         }
 
-        /* Foco tecnológico: brilho azul nos campos de input */
         input:focus, select:focus {
             border-color: var(--cor-brilho-tech);
             box-shadow: 0 0 10px rgba(0, 123, 255, 0.4);
@@ -129,7 +121,6 @@
             transition: 0.2s;
         }
 
-        /* Hover tecnológico: brilho azul suave nos grupos de checkbox */
         .checkbox-group:hover {
             border-color: var(--cor-brilho-tech);
             box-shadow: 0 0 10px rgba(0, 123, 255, 0.1);
@@ -139,7 +130,6 @@
             margin-right: 12px;
             width: 18px;
             height: 18px;
-            /* Cor do check é o azul tecnológico */
             accent-color: var(--cor-acento-tech);
             margin-top: 2px;
         }
@@ -153,7 +143,6 @@
             color: #444;
         }
 
-        /* Botão principal em azul elétrico */
         button {
             width: 100%;
             padding: 18px;
@@ -170,14 +159,12 @@
             margin-bottom: 20px;
         }
 
-        /* Hover tecnológico: botão azul brilhante e maior */
         button:hover {
-            background-color: #007bff; /* Um azul mais claro para o hover */
+            background-color: #007bff; 
             box-shadow: 0 0 15px rgba(0, 123, 255, 0.6);
             transform: scale(1.02);
         }
         
-        /* Botões secundários: baseados em cinza escuro para contraste */
         button.btn-secundario {
             background-color: #444;
             margin: 0;
@@ -192,7 +179,6 @@
             box-shadow: 0 0 10px rgba(100, 100, 100, 0.3);
         }
         
-        /* Botão imprimir (resultado final) */
         button.btn-imprimir {
             background-color: var(--preto-fundo);
             margin-top: 20px;
@@ -205,12 +191,10 @@
             border-color: #007bff;
         }
 
-        /* Estilização do Resultado Final */
         #resultado {
             display: none;
             background: #fdfdfd;
             border: 2px solid var(--cor-acento-tech);
-            /* Borda esquerda mantida azul elétrico */
             border-left: 10px solid var(--cor-acento-tech);
         }
         
@@ -223,7 +207,6 @@
         }
 
         .secao-res h3 {
-            /* Título da seção em azul */
             color: var(--cor-acento-tech);
             font-size: 16px;
             border-bottom: 2px solid var(--cor-acento-tech);
@@ -240,19 +223,16 @@
             color: #333;
         }
 
-        /* Alertas críticos em azul tecnológico */
         .alerta-item {
             color: #007bff;
             font-weight: bold;
         }
 
-        /* Recomendações em preto escuro */
         .dica-item {
             color: #1a1a1a;
             font-weight: bold;
         }
 
-        /* Card crítico em azul neon */
         .critico {
             background: var(--cor-acento-tech);
             color: var(--branco);
@@ -267,7 +247,7 @@
             box-shadow: 0 0 20px rgba(0, 123, 255, 0.6);
         }
 
-        #div_gamer_opcoes {
+        #div_gamer_opcoes, #div_stands_opcoes {
             display: none;
             margin-top: 15px;
             padding-top: 15px;
@@ -283,7 +263,6 @@
             object-fit: contain;
         }
 
-        /* MÁGICA DE IMPRESSÃO CORRIGIDA / GERAR PDF (Mantenha sem alterações) */
         @media print {
             body { background-color: white; padding: 0; color: black; }
             .container { box-shadow: none; border: none; max-width: 100%; margin: 0; padding: 0; border-top: none; }
@@ -336,13 +315,20 @@
         <div class="card">
             <h3 class="card-title">1. Perfil e Criticidade</h3>
             <div class="form-group">
-                <select id="tipo_evento" onchange="verificarGamer()">
+                <select id="tipo_evento" onchange="verificarTipoEvento()">
                     <option value="Palestra/Congresso">Palestra / Congresso / Workshop</option>
                     <option value="Feira de Negócios">Feira de Negócios / Stands</option>
                     <option value="Gamer/E-sports">Gamer / E-sports (Campeonato)</option>
                     <option value="Grande Porte/Massa">Show / Festival / Evento de Massa</option>
                     <option value="Transmissão Crítica">Transmissão Crítica (Live / TV)</option>
                 </select>
+            </div>
+
+            <div id="div_stands_opcoes">
+                <div class="form-group">
+                    <label>Quantidade Estimada de Stands:</label>
+                    <input type="number" id="qtd_stands" value="0" min="0">
+                </div>
             </div>
 
             <div id="div_gamer_opcoes">
@@ -409,14 +395,12 @@
 </div>
 
 <script>
-    // Converte YYYY-MM-DD para DD/MM/YYYY
     function formatarData(dataISO) {
         if (!dataISO) return "Não informada";
         let partes = dataISO.split('-');
         return `${partes[2]}/${partes[1]}/${partes[0]}`;
     }
 
-    // Lê a imagem e converte para Base64 para exibir no PDF
     function lerImagemAsBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -426,7 +410,6 @@
         });
     }
 
-    // Função para Capturar o GPS do celular
     function capturarLocalizacao() {
         let btn = document.getElementById('btn_gps');
         let inputLink = document.getElementById('link_maps');
@@ -458,10 +441,15 @@
         );
     }
 
-    function verificarGamer() {
+    function verificarTipoEvento() {
         let tipo = document.getElementById('tipo_evento').value;
+        
         let divGamer = document.getElementById('div_gamer_opcoes');
+        let divStands = document.getElementById('div_stands_opcoes');
+        
         divGamer.style.display = (tipo === 'Gamer/E-sports') ? 'block' : 'none';
+        divStands.style.display = (tipo === 'Feira de Negócios') ? 'block' : 'none';
+        
         verificarQtdPcs();
     }
 
@@ -472,7 +460,6 @@
     }
 
     async function gerarProjeto() {
-        // Captura Dados Gerais
         let tec = document.getElementById('nome_tecnico').value || 'Não preenchido';
         let evt = document.getElementById('nome_evento').value || 'Não preenchido';
         let cidade = document.getElementById('cidade').value || 'Não preenchida';
@@ -482,7 +469,6 @@
         let dVist = formatarData(document.getElementById('data_vistoria').value);
         let dEvt = formatarData(document.getElementById('data_evento').value);
 
-        // Processa a Imagem (se houver)
         let fileInput = document.getElementById('imagem_local');
         let imgHTML = '';
         if (fileInput.files && fileInput.files[0]) {
@@ -490,13 +476,14 @@
             imgHTML = `<div style="text-align: center;"><img src="${imgDataUrl}" class="img-anexo" alt="Foto do Local"></div>`;
         }
 
-        // Captura Cenário
         let tipo = document.getElementById('tipo_evento').value;
         let pub = parseInt(document.getElementById('publico').value) || 0;
         let stf = parseInt(document.getElementById('staff').value) || 0;
         let maq = parseInt(document.getElementById('maquininhas').value) || 0;
         let total = pub + stf + maq;
         
+        let qtd_stands = (tipo === 'Feira de Negócios') ? (parseInt(document.getElementById('qtd_stands').value) || 0) : 0;
+
         let ambiente = document.getElementById('ambiente').value;
         let area_aberta = (ambiente === 'externo' || ambiente === 'ambos');
         let divisorias = document.getElementById('divisorias').value;
@@ -516,25 +503,31 @@
         let eq = []; let alertas = []; let dicas = [];
         let aps_qtd = 0;
 
-        // Regra de Injeção Automática de Captura
-        dicas.push("KIT TÉCNICO OBRIGATÓRIO: O técnico deve levar uma RB ou uma ONU Huawei 8145 para realizar a captura de IPs e dados no local.");
-
-        // LÓGICA DE ROTEAMENTO
-        let precisa_rb = (total > 30 || hotspot || gamer || tipo === "Transmissão Crítica" || tipo === "Grande Porte/Massa");
+        let precisa_rb = (total > 30 || hotspot || gamer || tipo === "Transmissão Crítica" || tipo === "Grande Porte/Massa" || qtd_stands > 0);
         if (!precisa_rb) {
             eq.push(divisorias === "salas" ? "01x ONU Wi-Fi AX (Roteando) + 01x Roteador Adicional" : "01x ONU Wi-Fi AX (Roteando) ou Roteador Giga");
         } else {
-            if (total <= 50) eq.push("01x ONU em Bridge + 01x Mikrotik (RB 750Gr3)");
-            else if (total < 150) eq.push("01x ONU em Bridge + 01x Mikrotik (RB 750Gr3 ou 760iGS)");
-            else if (total < 300) eq.push("01x ONU em Bridge + 01x Mikrotik (RB 760iGS ou superior)");
+            if (total <= 50 && qtd_stands <= 20) eq.push("01x ONU em Bridge + 01x Mikrotik (RB 750Gr3)");
+            else if (total < 150 && qtd_stands <= 50) eq.push("01x ONU em Bridge + 01x Mikrotik (RB 750Gr3 ou 760iGS)");
+            else if (total < 300 && qtd_stands <= 80) eq.push("01x ONU em Bridge + 01x Mikrotik (RB 760iGS ou superior)");
             else eq.push("01x ONU em Bridge + 01x Mikrotik Alta Capacidade (RB 4011 ou CCR)");
 
             let cap = area_aberta ? 100 : 80; 
             if (metal) cap = cap * 0.8; 
             
+            // Cálculo base por densidade de pessoas
             aps_qtd = Math.max(1, Math.ceil(total / cap));
+            
+            // MÉTRICA ATUALIZADA: O FOCO SÃO OS STANDS
+            if (tipo === 'Feira de Negócios' && qtd_stands > 0) {
+                // A regra de stands substitui o cálculo por densidade de pessoas
+                aps_qtd = Math.max(1, Math.ceil(qtd_stands / 8)); 
+            }
+
+            // MÉTRICA: Muitas salas exige no mínimo 6 APs
+            if (divisorias === "salas" && aps_qtd < 6) aps_qtd = 6;
+            
             if (tipo === "Grande Porte/Massa" && aps_qtd < 3) aps_qtd = 3;
-            if (divisorias === "salas" && aps_qtd < 2) aps_qtd = 2;
             
             if (gamer && plat_gamer === 'pcs' && total <= maq) aps_qtd = 0;
 
@@ -549,18 +542,17 @@
                 if (aps_qtd === 1) eq.push("01x Fonte PoE Gigabit (Injetor)");
                 else if (aps_qtd <= 4) eq.push("01x Switch PoE 5 Portas (Para os APs Grandstream)");
                 else if (aps_qtd <= 7) eq.push("01x Switch PoE 8 Portas (Para os APs Grandstream)");
-                else eq.push("01x Switch PoE 16 Portas (Para os APs Grandstream)");
+                else if (aps_qtd <= 15) eq.push("01x Switch PoE 16 Portas (Para os APs Grandstream)");
+                else eq.push("01x Switch PoE 24 Portas (Para os APs Grandstream)");
 
                 alertas.push("REGRA DE OURO: O Wi-Fi nativo da ONU **DEVE ESTAR DESABILITADO**. Toda a rede sem fio será emitida exclusivamente pelos APs Grandstream.");
 
-                // Novo Alerta: Mapa de Calor para Projetos com mais de 2 APs
                 if (aps_qtd > 2) {
                     alertas.push("MAPA DE CALOR NECESSÁRIO: Eventos ou ambientes que exigem mais de 2 APs necessitam da elaboração de um mapa de calor (Heatmap) e análise profunda de canais para garantir Roaming eficiente e evitar interferência co-canal.");
                 }
             }
         }
 
-        // SWITCH GIGABIT GAMER
         if (qtd_pcs > 0) {
             if (qtd_pcs <= 4) eq.push("01x Switch Gigabit 5 Portas (Rede PCs)");
             else if (qtd_pcs <= 7) eq.push("01x Switch Gigabit 8 Portas (Rede PCs)");
@@ -568,7 +560,6 @@
             else eq.push("01x Switch Gigabit 24 Portas (Rede PCs)");
         }
 
-        // INFRAESTRUTURA E RACKS
         if (aps_qtd > 0 || qtd_pcs > 0) {
             if (ambiente === 'ambos') {
                 eq.push("01x Rack Indoor + 01x Caixa Hermética (Para a área externa)");
@@ -585,26 +576,24 @@
             eq.push("01x Kit Antena Starlink (Link de Backup / Failover)");
             alertas.push("EVENTO CRÍTICO: Configure a Starlink na porta WAN2 da Mikrotik com Failover.");
         }
-        if (total > 50 || live || energia || gamer || tipo === "Transmissão Crítica") {
+        if (total > 50 || live || energia || gamer || tipo === "Transmissão Crítica" || qtd_stands > 20) {
             eq.push("01x Nobreak Senoidal (Acondicionamento obrigatório de energia)");
         }
 
-        // AVISOS INTELIGENTES
         if (total > 250) alertas.push("ESTOURO DE DHCP: A quantidade de usuários excede uma rede /24. Na Mikrotik, altere o Pool e a máscara para /23 ou /22.");
         if (metal && aps_qtd > 0) alertas.push("OBSTRUÇÃO METÁLICA: O sinal sofre reflexão no metal. Evite instalar os APs muito colados às estruturas.");
         if (!fixacao && aps_qtd > 0) alertas.push("ABSORÇÃO DE SINAL: Sem fixação alta, utilize pedestais/tripés para os APs (Mínimo 2.5m).");
         if (live) alertas.push("LIVE DETECTADA: É proibido rodar a Live via Wi-Fi. Puxe um cabo de rede direto para a máquina de transmissão.");
         if (sinal_rede_movel && aps_qtd > 0) dicas.push("A rede móvel ruim sobrecarregará o Wi-Fi. Crie regras no Queue limitando a banda (Ex: 5 Mega/usuário).");
         
-        // CORREÇÃO: MAQUININHAS
         if (hotspot && maq > 0) dicas.push("Crie uma rede (SSID) separada e SEM hotspot, dedicada exclusivamente para as maquininhas de cartão.");
         
         if (tipo === "Feira de Negócios") dicas.push("Poluição de RF alta. Fixe os canais dos APs Grandstream apenas em 5GHz e evite canalização automática.");
         if (gamer && qtd_pcs > 0) dicas.push("Crie uma VLAN exclusiva para a porta do Switch Gamer, separando totalmente o tráfego dos PCs do Wi-Fi do público (QoS ativo).");
 
-        // RENDERIZAÇÃO DO LAUDO
         let txt_ambiente = ambiente === 'externo' ? 'Área Externa (Outdoor)' : (ambiente === 'interno' ? 'Área Interna (Indoor)' : 'Misto (Indoor + Outdoor)');
         let txt_divisorias = divisorias === 'salas' ? 'Com Divisórias/Salas' : 'Vão Livre';
+        let inf_stands = qtd_stands > 0 ? `   |   <b>Stands:</b> ${qtd_stands}` : '';
 
         let resDiv = document.getElementById('resultado');
         resDiv.innerHTML = `
@@ -616,14 +605,14 @@
                 <p style="margin: 0 0 8px 0;"><b>Técnico Responsável:</b> ${tec}</p>
                 <p style="margin: 0 0 8px 0;"><b>Data da Vistoria:</b> ${dVist}   |   <b>Data do Evento:</b> ${dEvt}</p>
                 <hr style="border: 0; border-top: 1px dashed #ccc; margin: 12px 0;">
-                <p style="margin: 0 0 8px 0;"><b>Tipo de Evento:</b> ${tipo}</p>
+                <p style="margin: 0 0 8px 0;"><b>Tipo de Evento:</b> ${tipo}${inf_stands}</p>
                 <p style="margin: 0 0 8px 0;"><b>Conexões Estimadas:</b> ${total} dispositivos (Público + Staff + POS)</p>
                 <p style="margin: 0;"><b>Ambiente Físico:</b> ${txt_ambiente} - ${txt_divisorias}</p>
             </div>
 
             ${imgHTML}
 
-            ${((tipo === "Grande Porte/Massa" || total > 400) ? '<div class="critico" style="margin-top: 20px;">⚠️ PROJETO ALTA DENSIDADE / EXIGE SITE SURVEY DO ENGENHEIRO</div>' : '')}
+            ${((tipo === "Grande Porte/Massa" || total > 400 || aps_qtd >= 10) ? '<div class="critico" style="margin-top: 20px;">⚠️ PROJETO ALTA DENSIDADE / EXIGE SITE SURVEY DO ENGENHEIRO</div>' : '')}
             
             <div class="secao-res" style="margin-top: 20px;"><h3>📦 Lista de Hardware Exigida</h3><ul>
             ${eq.map(i => `<li><b>${i.substring(0, i.indexOf(' ') > 0 ? i.indexOf(' ') : i.length)}</b> ${i.substring(i.indexOf(' ') + 1)}</li>`).join('')}
@@ -645,7 +634,6 @@
     }
 </script>
 <script>
-    // Registra o Service Worker (Mantenha o sw.js atualizado)
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js')
             .then((reg) => console.log('Service Worker registrado com sucesso!', reg))
